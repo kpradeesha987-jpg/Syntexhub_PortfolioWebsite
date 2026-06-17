@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List App</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .input-group button {
+            padding: 10px 15px;
+            border: none;
+            background: #4caf50;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .input-group button:hover {
+            background: #45a049;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .task-text {
+            flex: 1;
+            cursor: pointer;
+            word-break: break-word;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-left: 10px;
+        }
+
+        .icon-btn {
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        @media (max-width: 500px) {
+            .input-group {
+                flex-direction: column;
+            }
+
+            .input-group button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>📝 To-Do List</h1>
+
+        <div class="input-group">
+            <input type="text" id="taskInput" placeholder="Add a task...">
+            <button onclick="addTask()">➕ Add</button>
+        </div>
+
+        <ul id="taskList"></ul>
+    </div>
+
+    <script>
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+        function saveTasks() {
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+
+        function renderTasks() {
+            const taskList = document.getElementById("taskList");
+            taskList.innerHTML = "";
+
+            tasks.forEach((task, index) => {
+                const li = document.createElement("li");
+
+                li.innerHTML = `
+                    <span class="task-text ${task.completed ? 'completed' : ''}"
+                          onclick="toggleTask(${index})">
+                          ${task.text}
+                    </span>
+
+                    <div class="actions">
+                        <button class="icon-btn"
+                                onclick="toggleTask(${index})">
+                                ${task.completed ? "🔄" : "✅"}
+                        </button>
+
+                        <button class="icon-btn"
+                                onclick="deleteTask(${index})">
+                                🗑️
+                        </button>
+                    </div>
+                `;
+
+                taskList.appendChild(li);
+            });
+        }
+
+        function addTask() {
+            const input = document.getElementById("taskInput");
+            const text = input.value.trim();
+
+            if (text === "") return;
+
+            tasks.push({
+                text,
+                completed: false
+            });
+
+            input.value = "";
+            saveTasks();
+            renderTasks();
+        }
+
+        function toggleTask(index) {
+            tasks[index].completed = !tasks[index].completed;
+            saveTasks();
+            renderTasks();
+        }
+
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            saveTasks();
+            renderTasks();
+        }
+
+        document
+            .getElementById("taskInput")
+            .addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    addTask();
+                }
+            });
+
+        renderTasks();
+    </script>
+
+</body>
+</html>
